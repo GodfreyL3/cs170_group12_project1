@@ -60,11 +60,40 @@ class Node:
         return cost
                     
 
+    # This function will determine the cost(distance) away from the goal state given the
+    # sum of the distances of each tile from its goal state. This will be used to determine
+    # the cost of the path.
+    def cost_manhattan(self):
+        pass
+
 def main():
     a = Node([[1,0,2],
               [3,4,5],
               [8,7,6]])
     print(a.cost_euclidian())
+    print("Welcome to the 8 Puzzle Solver!")
+    print("Type \"1\" to use a default puzzle, or \"2\" to enter your own puzzle.")
+    choice = input()
+    if(choice == "1"):
+        pass
+    elif(choice == "2"):
+        print("Enter your puzzle, use a zero to represent the blank")
+        firstRow = input("Enter the first row, use space or tabs between numbers: \t")
+        secondRow = input("Enter the second row, use space or tabs between numbers: \t")
+        thirdRow = input("Enter the third row, use space or tabs between numbers: \t")
+        print()
+        print("Enter your choice of algorithm")
+        print("Uniform Cost Search\nA* with the Misplaced Tile heuristic\nA* with the Euclidean distance heuristic\n")
+        algo = input()
+    else:
+        print("Invalid input, please try again.")
+        main()
+
+    """
+    print(f"To solve this problem the search algorithm expanded a total of {numNodes} nodes.")
+    print(f"The maximum number of nodes in the queue at any one time: {maxNodes}.")
+    print(f"The depth of the goal node was {depth}.")
+    """
 
 if __name__ == "__main__":
     main()
