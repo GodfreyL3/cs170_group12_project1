@@ -37,14 +37,9 @@ class Node:
                     count += 1
         return count + self.incoming_cost
     
-    # Uniform cost is basically the same, without any tracking of how long it toook to get to a certain noide
+    # Uniform cost is basically the same, without any tracking of how close we are to the goal
     def cost_uniform(self):
-        cost = 0
-        for i in range(3):
-            for j in range(3):
-                if(self.matrix[i][j] != goal[i][j]):
-                    cost += 1
-        return cost
+        return self.incoming_cost
 
     # Calculates euclidian distance
     def cost_euclidian(self):
@@ -74,7 +69,7 @@ class Node:
         return cost + self.incoming_cost
     
     # Returns an array of matrices that have all possible moves
-    def possible_moves(self):
+    def expand(self):
         moves = []
         for i in range(3):
             for j in range(3):
@@ -86,36 +81,35 @@ class Node:
         # Swap positions
         next_matrix = copy.deepcopy(self.matrix)
         if(pos_x > 0):
-            temp = next_matrix[i - 1][j]
-            next_matrix[i - 1][j] = 0
-            next_matrix[i][j] = temp
-            moves.append(next_matrix)
+            temp = next_matrix[pos_x - 1][pos_y]
+            next_matrix[pos_x - 1][pos_y] = 0
+            next_matrix[pos_x][pos_y] = temp
+            moves.append(Node(self, next_matrix, self.incoming_cost))
 
         next_matrix = copy.deepcopy(self.matrix)
         if(pos_x < 2):
-            temp = next_matrix[i + 1][j]
-            next_matrix[i + 1][j] = 0
-            next_matrix[i][j] = temp
-            moves.append(next_matrix)
+            temp = next_matrix[pos_x + 1][pos_y]
+            next_matrix[pos_x + 1][pos_y] = 0
+            next_matrix[pos_x][pos_y] = temp
+            moves.append(Node(self, next_matrix, self.incoming_cost))
 
         next_matrix = copy.deepcopy(self.matrix)
         if(pos_y > 0):
-            temp = next_matrix[i][j - 1]
-            next_matrix[i][j - 1] = 0
-            next_matrix[i][j] = temp
-            moves.append(next_matrix)
+            temp = next_matrix[pos_x][pos_y - 1]
+            next_matrix[pos_x][pos_y - 1] = 0
+            next_matrix[pos_x][pos_y] = temp
+            moves.append(Node(self, next_matrix, self.incoming_cost))
 
         next_matrix = copy.deepcopy(self.matrix)
         if(pos_y < 2):
-            temp = next_matrix[i][j + 1]
-            next_matrix[i][j + 1] = 0
-            next_matrix[i][j] = temp
-            moves.append(next_matrix)
+            temp = next_matrix[pos_x][pos_y + 1]
+            next_matrix[pos_x][pos_y + 1] = 0
+            next_matrix[pos_x][pos_y] = temp
+            moves.append(Node(self, next_matrix, self.incoming_cost))
 
         return moves
-    
-    def __repr__(self) -> str:
-        pass
+
+        
     
     def print_puzzle(self):
         for i in range(3):
@@ -133,11 +127,7 @@ class Problem:
         self.starting_state = Node(0, starting_matrix, 0)
 
         # Create our priority Queue for our frontier
-        self.frontier = PriorityQueue()
-
-
-    def solve_uniform():
-        
+        self.frontier = PriorityQueue()        
 
 
 
@@ -151,9 +141,13 @@ class Problem:
 def main():
     a = Node(0, [[2,1,3],
                  [4,0,6],
-                 [7,0,8]], 1)
+                 [7,5,8]], 1)
     
-    print(a.possible_moves())
+    list = a.expand()
+
+    for m in list:
+        m.print_puzzle()
+        print()
     
     
 
