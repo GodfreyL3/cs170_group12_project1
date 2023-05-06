@@ -128,17 +128,23 @@ class NodeQueue:
     def __init__(self):
         self.priority_queue = []
 
+        self.maxNodes = 0
+
     
     def add_uniform(self, newNode):
         if not self.priority_queue:
             self.priority_queue.append(newNode)
+            self.maxNodes += 1
             return True
         
+
 
         iter = 0
         for i in self.priority_queue:
             if(newNode.cost_uniform() < i.cost_uniform()):
                 self.priority_queue.insert(iter, newNode)
+                if(len(self.priority_queue) > self.maxNodes):
+                    self.maxNodes += 1
                 return
             iter += 1
         #  If it is not less than any of the nodes, it has low priority
@@ -150,6 +156,7 @@ class NodeQueue:
     def add_misplaced(self, newNode):
         if not self.priority_queue:
             self.priority_queue.append(newNode)
+            self.maxNodes += 1
             return True
         
 
@@ -157,6 +164,8 @@ class NodeQueue:
         for i in self.priority_queue:
             if(newNode.cost_misplaced() + newNode.incoming_cost < i.cost_misplaced() + i.incoming_cost):
                 self.priority_queue.insert(iter, newNode)
+                if(len(self.priority_queue) > self.maxNodes):
+                    self.maxNodes += 1
                 return
             iter += 1
         self.priority_queue.append(newNode)
@@ -164,6 +173,7 @@ class NodeQueue:
     def add_euclidian(self, newNode):
         if not self.priority_queue:
             self.priority_queue.append(newNode)
+            self.maxNodes += 1
             return True
         
 
@@ -171,6 +181,8 @@ class NodeQueue:
         for i in self.priority_queue:
             if(newNode.cost_euclidian() + newNode.incoming_cost < i.cost_euclidian() + i.incoming_cost):
                 self.priority_queue.insert(iter, newNode)
+                if(len(self.priority_queue) > self.maxNodes):
+                    self.maxNodes += 1
                 return
             iter += 1
         self.priority_queue.append(newNode)
@@ -272,6 +284,8 @@ class Tree:
             if(compare_matrices(nextNode.matrix, goal)):
                 print("\n\nGoal!")
                 print("Solved with " + str(self.expansions) + " expansions")
+                print("Max number of nodes in the queue was " + str(self.frontier.maxNodes))
+                print("The depth of the goal node was " + str(nextNode.incoming_cost))
                 nextNode.print_puzzle()
                 return
             
