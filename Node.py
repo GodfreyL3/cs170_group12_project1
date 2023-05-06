@@ -33,9 +33,11 @@ class Node:
         count = 0
         for i in range(3):
             for j in range(3):
+                if(self.matrix[i][j] == 0):
+                    continue
                 if(self.matrix[i][j] != goal[i][j]):
                     count += 1
-        return count + self.incoming_cost
+        return count
     
     # Uniform cost is basically the same, without any tracking of how close we are to the goal
     def cost_uniform(self):
@@ -49,7 +51,7 @@ class Node:
                 for j in range(3):
                     if(self.matrix[i][j] == x):
                         if(x == 0):
-                            cost += dist([i,j], [2,2])
+                            cost += 0
                         elif(x == 1):
                             cost += dist([i,j], [0,0])
                         elif(x == 2):
@@ -66,7 +68,7 @@ class Node:
                             cost += dist([i,j], [2,0])
                         elif(x == 8):
                             cost += dist([i,j], [2,1])
-        return cost + self.incoming_cost
+        return cost
     
     # Returns an array of matrices that have all possible moves
     def expand(self):
@@ -153,7 +155,7 @@ class NodeQueue:
 
         iter = 0
         for i in self.priority_queue:
-            if(newNode.cost_misplaced() < i.cost_misplaced()):
+            if(newNode.cost_misplaced() + newNode.incoming_cost < i.cost_misplaced() + i.incoming_cost):
                 self.priority_queue.insert(iter, newNode)
                 return
             iter += 1
@@ -167,7 +169,7 @@ class NodeQueue:
 
         iter = 0
         for i in self.priority_queue:
-            if(newNode.cost_euclidian() < i.cost_euclidian()):
+            if(newNode.cost_euclidian() + newNode.incoming_cost < i.cost_euclidian() + i.incoming_cost):
                 self.priority_queue.insert(iter, newNode)
                 return
             iter += 1
@@ -200,7 +202,7 @@ class Tree:
     def solve_uniform(self):
 
         if(compare_matrices(self.start_state.matrix, goal)):
-            print("Goal!")
+            print("\n\nGoal!")
             return
 
         # Init searched matrices
@@ -218,7 +220,7 @@ class Tree:
 
             # Check if this is the node we are looking for 
             if(compare_matrices(nextNode.matrix, goal)):
-                print("Goal!")
+                print("\n\nGoal!")
                 print("Solved with " + str(self.expansions) + " expansions")
                 nextNode.print_puzzle()
                 return
@@ -229,7 +231,9 @@ class Tree:
             # Expand Node, add to frontier ONLY IF NOT IN EXPLORED
             new_nodes = nextNode.expand()
 
-            print("expanding Node...")
+            print("The best state to expand with g(n) = "+ str(nextNode.incoming_cost) +" and h(n) = 0 is...")
+            nextNode.print_puzzle()
+            print("    expanding Node...")
             self.expansions += 1
 
             for node in new_nodes:
@@ -248,7 +252,7 @@ class Tree:
     def solve_misplaced(self):
 
         if(compare_matrices(self.start_state.matrix, goal)):
-            print("Goal!")
+            print("\n\nGoal!")
             return
 
         # Init searched matrices
@@ -266,7 +270,7 @@ class Tree:
 
             # Check if this is the node we are looking for 
             if(compare_matrices(nextNode.matrix, goal)):
-                print("Goal!")
+                print("\n\nGoal!")
                 print("Solved with " + str(self.expansions) + " expansions")
                 nextNode.print_puzzle()
                 return
@@ -276,9 +280,11 @@ class Tree:
 
             # Expand Node, add to frontier ONLY IF NOT IN EXPLORED
             new_nodes = nextNode.expand()
-            self.expansions += 1
 
-            print("expanding Node...")
+            print("The best state to expand with g(n) = "+ str(nextNode.incoming_cost) +" and h(n) = " + str(nextNode.cost_misplaced()) + " is...")
+            nextNode.print_puzzle()
+            print("     expanding Node...")
+            self.expansions += 1
 
             for node in new_nodes:
                 for explored_node in explored:
@@ -296,7 +302,7 @@ class Tree:
     def solve_euclidian(self):
 
         if(compare_matrices(self.start_state.matrix, goal)):
-            print("Goal!")
+            print("\n\nGoal!")
             return
 
         # Init searched matrices
@@ -314,7 +320,7 @@ class Tree:
 
             # Check if this is the node we are looking for 
             if(compare_matrices(nextNode.matrix, goal)):
-                print("Goal!")
+                print("\n\nGoal!")
                 print("Solved with " + str(self.expansions) + " expansions")
                 nextNode.print_puzzle()
                 return
@@ -325,7 +331,9 @@ class Tree:
             # Expand Node, add to frontier ONLY IF NOT IN EXPLORED
             new_nodes = nextNode.expand()
 
-            print("expanding Node...")
+            print("The best state to expand with g(n) = "+ str(nextNode.incoming_cost) +" and h(n) = " + str(nextNode.cost_euclidian()) + " is...")
+            nextNode.print_puzzle()
+            print("     expanding Node...")
             self.expansions += 1
 
             for node in new_nodes:
@@ -346,12 +354,12 @@ class Tree:
 
 def main():
     b = Node(0, [[1,2,3],
-                 [7,0,8],
-                 [5,6,4]], 0)
+                 [4,8,0],
+                 [7,6,5]], 0)
     
     tree = Tree(b)
 
-    tree.solve_euclidian()
+    tree.solve_misplaced()
     
 
 
