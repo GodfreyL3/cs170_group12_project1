@@ -84,28 +84,28 @@ class Node:
             temp = next_matrix[pos_x - 1][pos_y]
             next_matrix[pos_x - 1][pos_y] = 0
             next_matrix[pos_x][pos_y] = temp
-            moves.append(Node(self, next_matrix, self.incoming_cost))
+            moves.append(Node(self, next_matrix, self.incoming_cost + 1))
 
         next_matrix = copy.deepcopy(self.matrix)
         if(pos_x < 2):
             temp = next_matrix[pos_x + 1][pos_y]
             next_matrix[pos_x + 1][pos_y] = 0
             next_matrix[pos_x][pos_y] = temp
-            moves.append(Node(self, next_matrix, self.incoming_cost))
+            moves.append(Node(self, next_matrix, self.incoming_cost + 1))
 
         next_matrix = copy.deepcopy(self.matrix)
         if(pos_y > 0):
             temp = next_matrix[pos_x][pos_y - 1]
             next_matrix[pos_x][pos_y - 1] = 0
             next_matrix[pos_x][pos_y] = temp
-            moves.append(Node(self, next_matrix, self.incoming_cost))
+            moves.append(Node(self, next_matrix, self.incoming_cost + 1))
 
         next_matrix = copy.deepcopy(self.matrix)
         if(pos_y < 2):
             temp = next_matrix[pos_x][pos_y + 1]
             next_matrix[pos_x][pos_y + 1] = 0
             next_matrix[pos_x][pos_y] = temp
-            moves.append(Node(self, next_matrix, self.incoming_cost))
+            moves.append(Node(self, next_matrix, self.incoming_cost + 1))
 
         return moves
 
@@ -120,34 +120,249 @@ class Node:
                 else:
                     print(self.matrix[i][j], end="")
     
-class Problem:
-    def __init__(self, starting_matrix):
 
-        #   Start node will be from 0
-        self.starting_state = Node(0, starting_matrix, 0)
+class NodeQueue:
 
-        # Create our priority Queue for our frontier
-        self.frontier = PriorityQueue()        
-
-
+    def __init__(self):
+        self.priority_queue = []
 
     
+    def add_uniform(self, newNode):
+        if not self.priority_queue:
+            self.priority_queue.append(newNode)
+            return True
+        
 
+        iter = 0
+        for i in self.priority_queue:
+            if(newNode.cost_uniform() < i.cost_uniform()):
+                self.priority_queue.insert(iter, newNode)
+                return
+            iter += 1
+        #  If it is not less than any of the nodes, it has low priority
+        self.priority_queue.append(newNode)
 
+        return
+        
+    
+    def add_misplaced(self, newNode):
+        if not self.priority_queue:
+            self.priority_queue.append(newNode)
+            return True
+        
 
+        iter = 0
+        for i in self.priority_queue:
+            if(newNode.cost_misplaced() < i.cost_misplaced()):
+                self.priority_queue.insert(iter, newNode)
+                return
+            iter += 1
+        self.priority_queue.append(newNode)
 
+    def add_euclidian(self, newNode):
+        if not self.priority_queue:
+            self.priority_queue.append(newNode)
+            return True
+        
+
+        iter = 0
+        for i in self.priority_queue:
+            if(newNode.cost_euclidian() < i.cost_euclidian()):
+                self.priority_queue.insert(iter, newNode)
+                return
+            iter += 1
+        self.priority_queue.append(newNode)
+
+    def isEmpty(self):
+        if not self.priority_queue:
+            return True
+        else:
+            return False
+    
+    def pop(self):
+        popped_node = self.priority_queue.pop(0)
+        return popped_node
+
+    def print_frontier(self):
+        for i in self.priority_queue:
+            i.print_puzzle()
+                    
+class Tree:
+    def __init__(self, start):
+
+        self.expansions = 0
+
+        # Init starts Node
+        self.start_state = start
+        # Our own Node Queue for the frontier :)
+        self.frontier = NodeQueue()
+
+    def solve_uniform(self):
+
+        if(compare_matrices(self.start_state.matrix, goal)):
+            print("Goal!")
+            return
+
+        # Init searched matrices
+        explored = []
+        explored.append(self.start_state.matrix)
+
+        # Add first Nodes
+        init_frontier = self.start_state.expand()
+        for node in init_frontier:
+            self.frontier.add_uniform(node)
+
+        # search loop
+        while(not self.frontier.isEmpty()):
+            nextNode = self.frontier.pop()
+
+            # Check if this is the node we are looking for 
+            if(compare_matrices(nextNode.matrix, goal)):
+                print("Goal!")
+                print("Solved with " + str(self.expansions) + " expansions")
+                nextNode.print_puzzle()
+                return
+            
+            # Add node to explored set
+            explored.append(nextNode.matrix)
+
+            # Expand Node, add to frontier ONLY IF NOT IN EXPLORED
+            new_nodes = nextNode.expand()
+
+            print("expanding Node...")
+            self.expansions += 1
+
+            for node in new_nodes:
+                for explored_node in explored:
+                    if(compare_matrices(node.matrix,explored_node)):
+                        break
+                else:
+                    self.frontier.add_uniform(node)
+                    continue
+                
+                        
                     
 
-def main():
-    a = Node(0, [[2,1,3],
-                 [4,0,6],
-                 [7,5,8]], 1)
-    
-    list = a.expand()
+        print("Failed")
 
-    for m in list:
-        m.print_puzzle()
-        print()
+    def solve_misplaced(self):
+
+        if(compare_matrices(self.start_state.matrix, goal)):
+            print("Goal!")
+            return
+
+        # Init searched matrices
+        explored = []
+        explored.append(self.start_state.matrix)
+
+        # Add first Nodes
+        init_frontier = self.start_state.expand()
+        for node in init_frontier:
+            self.frontier.add_misplaced(node)
+
+        # search loop
+        while(not self.frontier.isEmpty()):
+            nextNode = self.frontier.pop()
+
+            # Check if this is the node we are looking for 
+            if(compare_matrices(nextNode.matrix, goal)):
+                print("Goal!")
+                print("Solved with " + str(self.expansions) + " expansions")
+                nextNode.print_puzzle()
+                return
+            
+            # Add node to explored set
+            explored.append(nextNode.matrix)
+
+            # Expand Node, add to frontier ONLY IF NOT IN EXPLORED
+            new_nodes = nextNode.expand()
+            self.expansions += 1
+
+            print("expanding Node...")
+
+            for node in new_nodes:
+                for explored_node in explored:
+                    if(compare_matrices(node.matrix,explored_node)):
+                        break
+                else:
+                    self.frontier.add_misplaced(node)
+                    continue
+                
+                        
+                    
+
+        print("Failed")
+
+    def solve_euclidian(self):
+
+        if(compare_matrices(self.start_state.matrix, goal)):
+            print("Goal!")
+            return
+
+        # Init searched matrices
+        explored = []
+        explored.append(self.start_state.matrix)
+
+        # Add first Nodes
+        init_frontier = self.start_state.expand()
+        for node in init_frontier:
+            self.frontier.add_euclidian(node)
+
+        # search loop
+        while(not self.frontier.isEmpty()):
+            nextNode = self.frontier.pop()
+
+            # Check if this is the node we are looking for 
+            if(compare_matrices(nextNode.matrix, goal)):
+                print("Goal!")
+                print("Solved with " + str(self.expansions) + " expansions")
+                nextNode.print_puzzle()
+                return
+            
+            # Add node to explored set
+            explored.append(nextNode.matrix)
+
+            # Expand Node, add to frontier ONLY IF NOT IN EXPLORED
+            new_nodes = nextNode.expand()
+
+            print("expanding Node...")
+            self.expansions += 1
+
+            for node in new_nodes:
+                for explored_node in explored:
+                    if(compare_matrices(node.matrix,explored_node)):
+                        break
+                else:
+                    self.frontier.add_euclidian(node)
+                    continue
+                
+                        
+                    
+
+        print("Failed")
+            
+
+
+
+def main():
+    b = Node(0, [[1,2,3],
+                 [7,0,8],
+                 [5,6,4]], 0)
+    
+    tree = Tree(b)
+
+    tree.solve_euclidian()
+    
+
+
+def compare_matrices(a, b):
+    for i in range(3):
+        for j in range(3):
+            if(a[i][j] != b[i][j]):
+                return False
+
+    return True
+        
     
     
 
