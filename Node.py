@@ -121,6 +121,17 @@ class Node:
                     print("b", end = "")
                 else:
                     print(self.matrix[i][j], end="")
+
+    def print_ancestors(self):
+
+        currNode = self
+        while(currNode.parent):
+            currNode.print_puzzle()
+            print("\n^^^", end="")
+            currNode = currNode.parent
+
+        # FOr the top node :)
+        currNode.print_puzzle()
     
 
 # NodeQueue class Acts as a PriorityQueue specifically for our Nodes class. PriorityQueue was initially the plan,
@@ -248,7 +259,6 @@ class Tree:
                 print("Solved with " + str(self.expansions) + " expansions")
                 print("Max number of nodes in the queue was " + str(self.frontier.maxNodes))
                 print("The depth of the goal node was " + str(nextNode.incoming_cost))
-                nextNode.print_puzzle()
                 return
             
             # Add node to explored set
@@ -300,7 +310,6 @@ class Tree:
                 print("Solved with " + str(self.expansions) + " expansions")
                 print("Max number of nodes in the queue was " + str(self.frontier.maxNodes))
                 print("The depth of the goal node was " + str(nextNode.incoming_cost))
-                nextNode.print_puzzle()
                 return
             
             # Add node to explored set
@@ -352,8 +361,7 @@ class Tree:
                 print("Solved with " + str(self.expansions) + " expansions")
                 print("Max number of nodes in the queue was " + str(self.frontier.maxNodes))
                 print("The depth of the goal node was " + str(nextNode.incoming_cost))
-                nextNode.print_puzzle()
-                return
+                return nextNode
             
             # Add node to explored set
             explored.append(nextNode.matrix)
@@ -389,8 +397,9 @@ def main():
     
     tree = Tree(b)
 
-    tree.solve_euclidian()
+    answer = tree.solve_euclidian()
     
+    answer.print_ancestors()
 
 
 def compare_matrices(a, b):
