@@ -259,7 +259,7 @@ class Tree:
                 print("Solved with " + str(self.expansions) + " expansions")
                 print("Max number of nodes in the queue was " + str(self.frontier.maxNodes))
                 print("The depth of the goal node was " + str(nextNode.incoming_cost))
-                return
+                return nextNode
             
             # Add node to explored set
             explored.append(nextNode.matrix)
@@ -310,7 +310,7 @@ class Tree:
                 print("Solved with " + str(self.expansions) + " expansions")
                 print("Max number of nodes in the queue was " + str(self.frontier.maxNodes))
                 print("The depth of the goal node was " + str(nextNode.incoming_cost))
-                return
+                return nextNode
             
             # Add node to explored set
             explored.append(nextNode.matrix)
@@ -392,8 +392,8 @@ class Tree:
 
 def main():
     b = Node(0, [[1,2,3],
-                 [4,8,0],
-                 [7,6,5]], 0)
+                 [8,0,7],
+                 [4,6,5]], 0)
     
     tree = Tree(b)
 
