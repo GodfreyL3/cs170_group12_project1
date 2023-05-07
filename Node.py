@@ -431,7 +431,7 @@ def main():
         tree = Tree(b)
         answer = tree.solve_euclidian()
     else:
-        print("Invalid algorithm choice. Exiting program.")
+        print("Invalid choices")
         return
 
     answer.print_ancestors()
