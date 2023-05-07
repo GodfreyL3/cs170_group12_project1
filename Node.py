@@ -404,7 +404,7 @@ def main():
         
     elif choice == 2:
         # User-defined puzzle
-        print("Enter your puzzle, use a zero to represent the blank")
+        print("Enter your puzzle, enter 3 at a time")
         row1 = input().split()
         row2 = input().split()
         row3 = input().split()
