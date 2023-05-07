@@ -46,14 +46,14 @@ class Node:
     # Calculates euclidian distance
     def cost_euclidian(self):
         cost = 0
-        for x in range(9):  # Can be changed to accomidate larger/smaller puzzles
+        for x in range(9):
             for i in range(3):
                 for j in range(3):
                     if(self.matrix[i][j] == x):
-                        if(x == 0):     # We wont take into account where "0" is into the cost
+                        if(x == 0):
                             cost += 0
                         elif(x == 1):
-                            cost += dist([i,j], [0,0])  # dist find the euclidian disnace between two points
+                            cost += dist([i,j], [0,0])
                         elif(x == 2):
                             cost += dist([i,j], [0,1])
                         elif(x == 3):
@@ -70,7 +70,7 @@ class Node:
                             cost += dist([i,j], [2,1])
         return cost
     
-    # Returns an list of matrices called "moves" that have all possible moves from the current nodes
+    # Returns an array of matrices that have all possible moves
     def expand(self):
         moves = []
         for i in range(3):
@@ -80,8 +80,7 @@ class Node:
                     pos_x, pos_y = i,j
                     break
 
-        # These if statements find if a certain move is possible, and if it is adds a new node 
-        # to the moves list that represents possible movements
+        # Swap positions
         next_matrix = copy.deepcopy(self.matrix)
         if(pos_x > 0):
             temp = next_matrix[pos_x - 1][pos_y]
@@ -112,44 +111,27 @@ class Node:
 
         return moves
 
-    # Simple print :)
+        
+    
     def print_puzzle(self):
         for i in range(3):
             print("")
             for j in range(3):
                 if(self.matrix[i][j] == 0):
-                    print("b", end = "")
+                    print("b", end="")
                 else:
                     print(self.matrix[i][j], end="")
-
-    def print_ancestors(self):
-
-        currNode = self
-        while(currNode.parent):
-            currNode.print_puzzle()
-            print("\n^^^", end="")
-            currNode = currNode.parent
-
-        # FOr the top node :)
-        currNode.print_puzzle()
     
 
-# NodeQueue class Acts as a PriorityQueue specifically for our Nodes class. PriorityQueue was initially the plan,
-# but there was no way to quantify the cost of a node without statically assigning the "__lt__" function to one 
-# single comparator for each search method.
 class NodeQueue:
 
-    # init "queue" and the number of max nodes for the puzzle
     def __init__(self):
         self.priority_queue = []
 
         self.maxNodes = 0
 
     
-    # This is why we needed our custom NodeQueue class, so we have 3 different ways to order our Nodes in the Queue
     def add_uniform(self, newNode):
-
-        # If empty, add to front
         if not self.priority_queue:
             self.priority_queue.append(newNode)
             self.maxNodes += 1
@@ -157,7 +139,6 @@ class NodeQueue:
         
 
 
-        # iter will keep track of where the iterator is pointing, and where it should insert the new Node
         iter = 0
         for i in self.priority_queue:
             if(newNode.cost_uniform() < i.cost_uniform()):
@@ -166,13 +147,12 @@ class NodeQueue:
                     self.maxNodes += 1
                 return
             iter += 1
-        #  If it is not less than any of the nodes, it has low priority, and will appended to the end
+        #  If it is not less than any of the nodes, it has low priority
         self.priority_queue.append(newNode)
 
         return
         
     
-    # Other two are the same, except they use different cost functions
     def add_misplaced(self, newNode):
         if not self.priority_queue:
             self.priority_queue.append(newNode)
@@ -207,19 +187,16 @@ class NodeQueue:
             iter += 1
         self.priority_queue.append(newNode)
 
-    # Checks if empty
     def isEmpty(self):
         if not self.priority_queue:
             return True
         else:
             return False
     
-    # "pops" node from "queue"
     def pop(self):
         popped_node = self.priority_queue.pop(0)
         return popped_node
 
-    # For debugging, prints all puzzles in the frontier
     def print_frontier(self):
         for i in self.priority_queue:
             i.print_puzzle()
@@ -257,9 +234,8 @@ class Tree:
             if(compare_matrices(nextNode.matrix, goal)):
                 print("\n\nGoal!")
                 print("Solved with " + str(self.expansions) + " expansions")
-                print("Max number of nodes in the queue was " + str(self.frontier.maxNodes))
-                print("The depth of the goal node was " + str(nextNode.incoming_cost))
-                return nextNode
+                nextNode.print_puzzle()
+                return
             
             # Add node to explored set
             explored.append(nextNode.matrix)
@@ -310,7 +286,8 @@ class Tree:
                 print("Solved with " + str(self.expansions) + " expansions")
                 print("Max number of nodes in the queue was " + str(self.frontier.maxNodes))
                 print("The depth of the goal node was " + str(nextNode.incoming_cost))
-                return nextNode
+                nextNode.print_puzzle()
+                return
             
             # Add node to explored set
             explored.append(nextNode.matrix)
@@ -332,7 +309,6 @@ class Tree:
                     continue
                 
                         
-                    
 
         print("Failed")
 
@@ -359,9 +335,8 @@ class Tree:
             if(compare_matrices(nextNode.matrix, goal)):
                 print("\n\nGoal!")
                 print("Solved with " + str(self.expansions) + " expansions")
-                print("Max number of nodes in the queue was " + str(self.frontier.maxNodes))
-                print("The depth of the goal node was " + str(nextNode.incoming_cost))
-                return nextNode
+                nextNode.print_puzzle()
+                return
             
             # Add node to explored set
             explored.append(nextNode.matrix)
@@ -392,14 +367,13 @@ class Tree:
 
 def main():
     b = Node(0, [[1,2,3],
-                 [8,0,7],
-                 [4,6,5]], 0)
+                 [4,8,0],
+                 [7,6,5]], 0)
     
     tree = Tree(b)
 
-    answer = tree.solve_euclidian()
+    tree.solve_misplaced()
     
-    answer.print_ancestors()
 
 
 def compare_matrices(a, b):
