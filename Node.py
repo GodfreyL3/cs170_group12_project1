@@ -121,6 +121,17 @@ class Node:
                     print("b", end="")
                 else:
                     print(self.matrix[i][j], end="")
+
+    def print_ancestors(self):
+
+        currNode = self
+        while(currNode.parent):
+            currNode.print_puzzle()
+            print("\n^^^", end="")
+            currNode = currNode.parent
+
+        # FOr the top node :)
+        currNode.print_puzzle()
     
 
 class NodeQueue:
@@ -235,7 +246,7 @@ class Tree:
                 print("\n\nGoal!")
                 print("Solved with " + str(self.expansions) + " expansions")
                 nextNode.print_puzzle()
-                return
+                return nextNode
             
             # Add node to explored set
             explored.append(nextNode.matrix)
@@ -287,7 +298,7 @@ class Tree:
                 print("Max number of nodes in the queue was " + str(self.frontier.maxNodes))
                 print("The depth of the goal node was " + str(nextNode.incoming_cost))
                 nextNode.print_puzzle()
-                return
+                return nextNode
             
             # Add node to explored set
             explored.append(nextNode.matrix)
@@ -336,7 +347,7 @@ class Tree:
                 print("\n\nGoal!")
                 print("Solved with " + str(self.expansions) + " expansions")
                 nextNode.print_puzzle()
-                return
+                return nextNode
             
             # Add node to explored set
             explored.append(nextNode.matrix)
@@ -401,17 +412,20 @@ def main():
     if algorithm_choice == "1":
         tree = Tree(b)
         answer = tree.solve_uniform()
+        answer.print_ancestors()
     elif algorithm_choice == "2":
         tree = Tree(b)
         answer = tree.solve_misplaced()
+        answer.print_ancestors()
     elif algorithm_choice == "3":
         tree = Tree(b)
         answer = tree.solve_euclidian()
+        answer.print_ancestors()
     else:
         print("Invalid choices")
         return
 
-    answer.print_ancestors()
+    
 
 
 
