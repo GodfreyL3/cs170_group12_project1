@@ -366,14 +366,53 @@ class Tree:
 
 
 def main():
-    b = Node(0, [[1,2,3],
-                 [4,8,0],
-                 [7,6,5]], 0)
-    
-    tree = Tree(b)
 
-    tree.solve_misplaced()
+    print("Welcome to Group 12's 8 puzzle solver")
+    print("Type 1 to use a default puzzle, or 2 to enter your own puzzle")
     
+    choice = int(input())
+    
+    if choice == 1:
+
+        b = Node(0, [[1,2,3],
+                 [8,0,7],
+                 [4,6,5]], 0)
+        
+    elif choice == 2:
+        # User-defined puzzle
+        print("Enter your puzzle, enter 3 at a time")
+        row1 = input().split()
+        row2 = input().split()
+        row3 = input().split()
+        puzzle = [list(map(int, row1)), list(map(int, row2)), list(map(int, row3))]
+        b = Node(0, puzzle, 0)
+    else:
+        print("Invalid choice. Exiting program.")
+        return
+
+    
+    print("Enter your choice of algorithm:")
+    print("1. Uniform Cost Search")
+    print("2. A* with the misplaced Tile heuristic")
+    print("3. A* with the euclidean distance heuristic")
+
+    algorithm_choice = input("Enter your algorithm choice: ")
+
+    if algorithm_choice == "1":
+        tree = Tree(b)
+        answer = tree.solve_uniform()
+    elif algorithm_choice == "2":
+        tree = Tree(b)
+        answer = tree.solve_misplaced()
+    elif algorithm_choice == "3":
+        tree = Tree(b)
+        answer = tree.solve_euclidian()
+    else:
+        print("Invalid choices")
+        return
+
+    answer.print_ancestors()
+
 
 
 def compare_matrices(a, b):
