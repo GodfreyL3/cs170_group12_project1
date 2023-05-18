@@ -1,10 +1,9 @@
 from array import *
 import copy
 from math import dist
-from queue import PriorityQueue
 
 
-# set goal state, 0 represnts empty state
+# set goal state, 0 represents a empty state
 goal = [[1,2,3],
         [4,5,6],
         [7,8,0]]
@@ -19,6 +18,7 @@ class Node:
         # Store matrix state
         self.matrix = matrix
 
+        # Store cost to get to this state
         self.incoming_cost = incoming_cost
 
         # define distance from starting
@@ -53,7 +53,7 @@ class Node:
                         if(x == 0):
                             cost += 0
                         elif(x == 1):
-                            cost += dist([i,j], [0,0])
+                            cost += dist([i,j], [0,0]) #calcs distance between two tiles
                         elif(x == 2):
                             cost += dist([i,j], [0,1])
                         elif(x == 3):
@@ -80,14 +80,19 @@ class Node:
                     pos_x, pos_y = i,j
                     break
 
-        # Swap positions
-        next_matrix = copy.deepcopy(self.matrix)
+        # Swap positions part
+        # Copy the matrix
+        next_matrix = copy.deepcopy(self.matrix) 
+
+        #check all possible moves
+        #if possible, then move the performed swap to the moves array
         if(pos_x > 0):
-            temp = next_matrix[pos_x - 1][pos_y]
+            temp = next_matrix[pos_x - 1][pos_y] 
             next_matrix[pos_x - 1][pos_y] = 0
             next_matrix[pos_x][pos_y] = temp
             moves.append(Node(self, next_matrix, self.incoming_cost + 1))
 
+        #repeat for all possible moves
         next_matrix = copy.deepcopy(self.matrix)
         if(pos_x < 2):
             temp = next_matrix[pos_x + 1][pos_y]
@@ -112,7 +117,7 @@ class Node:
         return moves
 
         
-    
+    #prints the puzzle in a 3x3 grid
     def print_puzzle(self):
         for i in range(3):
             print("")
@@ -122,6 +127,7 @@ class Node:
                 else:
                     print(self.matrix[i][j], end="")
 
+    #prints the puzzle in a 3x3 grid and its parents
     def print_ancestors(self):
 
         currNode = self
@@ -135,25 +141,28 @@ class Node:
     
 
 class NodeQueue:
+    #modified priority queue to handle nodes
 
     def __init__(self):
         self.priority_queue = []
 
-        self.maxNodes = 0
+        self.maxNodes = 0 #number of node in the queue at any given time
 
     
     def add_uniform(self, newNode):
+        #if the queue is empty, just add the node
         if not self.priority_queue:
             self.priority_queue.append(newNode)
             self.maxNodes += 1
             return True
         
 
-
+        #holds the ammount of itterations we have done
         iter = 0
         for i in self.priority_queue:
             if(newNode.cost_uniform() < i.cost_uniform()):
                 self.priority_queue.insert(iter, newNode)
+                #tracks how large the queue gets
                 if(len(self.priority_queue) > self.maxNodes):
                     self.maxNodes += 1
                 return
@@ -163,7 +172,8 @@ class NodeQueue:
 
         return
         
-    
+    # Adds a node to the queue based on the number of misplaced tiles
+
     def add_misplaced(self, newNode):
         if not self.priority_queue:
             self.priority_queue.append(newNode)
@@ -198,23 +208,28 @@ class NodeQueue:
             iter += 1
         self.priority_queue.append(newNode)
 
+    #checks if the queue is empty
     def isEmpty(self):
         if not self.priority_queue:
             return True
         else:
             return False
     
+    #returns the first node in the queue
     def pop(self):
         popped_node = self.priority_queue.pop(0)
         return popped_node
 
+    #prints the queue
     def print_frontier(self):
         for i in self.priority_queue:
             i.print_puzzle()
-                    
+
+# implementation of the Node class and the NodeQueue class into one tree class            
 class Tree:
     def __init__(self, start):
 
+        #how many expansions we have done
         self.expansions = 0
 
         # Init starts Node
@@ -224,11 +239,13 @@ class Tree:
 
     def solve_uniform(self):
 
+        # inital check if the start state is the goal state
         if(compare_matrices(self.start_state.matrix, goal)):
             print("\n\nGoal!")
             return
 
-        # Init searched matrices
+        # Init searched matrices list of matrices
+        #we cant use nodes since it can be unique
         explored = []
         explored.append(self.start_state.matrix)
 
@@ -254,11 +271,13 @@ class Tree:
             # Expand Node, add to frontier ONLY IF NOT IN EXPLORED
             new_nodes = nextNode.expand()
 
+            # Print the node we are expanding
             print("The best state to expand with g(n) = "+ str(nextNode.incoming_cost) +" and h(n) = 0 is...")
             nextNode.print_puzzle()
             print("    expanding Node...")
             self.expansions += 1
 
+            # Add new nodes to frontier
             for node in new_nodes:
                 for explored_node in explored:
                     if(compare_matrices(node.matrix,explored_node)):
@@ -272,6 +291,7 @@ class Tree:
 
         print("Failed")
 
+    #code is the same as uniform cost search, but we use the misplaced tiles cost function
     def solve_misplaced(self):
 
         if(compare_matrices(self.start_state.matrix, goal)):
@@ -323,6 +343,7 @@ class Tree:
 
         print("Failed")
 
+    #code is the same as uniform cost search, but we use the euclidian distance cost function
     def solve_euclidian(self):
 
         if(compare_matrices(self.start_state.matrix, goal)):
@@ -375,7 +396,7 @@ class Tree:
             
 
 
-
+# driver code
 def main():
 
     print("Welcome to Group 12's 8 puzzle solver")
@@ -424,9 +445,6 @@ def main():
     else:
         print("Invalid choices")
         return
-
-    
-
 
 
 def compare_matrices(a, b):
